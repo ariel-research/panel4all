@@ -1,3 +1,7 @@
+"""
+Code for analyzing results of Example Poll #1
+"""
+
 import panel4all, logging
 
 panel4all.logger.addHandler(logging.StreamHandler())

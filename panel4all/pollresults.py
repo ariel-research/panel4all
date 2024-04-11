@@ -56,7 +56,6 @@ class PollResults:
 		logger.debug("map_voter_id_to_open_answers:\n%s",self.map_voter_id_to_open_answers)
 		# self.map_question_code_to_short_label = {code: label.split()[0] for code,label in self.map_question_code_to_label.items() if isinstance(label,str)}
 
-
 	def print_question_and_answer_labels(self):
 		"""
 		Pretty-print the question codes and labels, and for each question - its answer codes and labels.
@@ -67,30 +66,116 @@ class PollResults:
 				for answer_code,answer_label in self.map_question_code_to_map_answer_code_to_label[question_code].items():
 					print(f"\t{answer_code}: {answer_label}")
 
-	def print_answers_of_one_voter(self, voter_index:int=0, voter_id:int=None):
+	def voter_id(self, voter_index:int=0, voter_id:int=None):
 		"""
-		Pretty-print the answers of one voter (by default the first one), for illustration
+		Get the unique voter id.
+
+		The voter can be given either by voter_index (starts with 0) or voter_id (unique id in the panel).
+		If both are given, voter_id takes precedence.
 		"""
 		if voter_id is None:
 			voter_id = self.voter_ids[voter_index]
+		return voter_id
+
+	def subquestion_codes(self, question_code:str):
+		"""
+		returns the codes of all subquestions of a single multi-answer question.
+		"""
+		return [q for q in self.map_question_code_to_label if q.startswith(question_code)]
+
+	def get_voter_answer(self, question_code:str, voter_index:int=0, voter_id:int=None):
+		"""
+		get the answer of a single voter to the given question.
+
+		The voter can be given either by voter_index (starts with 0) or voter_id (unique id in the panel).
+		If both are given, voter_id takes precedence.
+
+		:return the answer (if this is a single-answer question), 
+		or a map from the subquestion label to the answer code (if this is a multi-answer question)
+		"""
+		voter_id = self.voter_id(voter_index, voter_id)
+		voter_closed_answers = self.map_voter_id_to_closed_answers[voter_id]
+		if question_code in voter_closed_answers:            # single-answer question
+			voter_answer = voter_closed_answers[question_code]
+			return self.map_question_code_to_map_answer_code_to_label[question_code][voter_answer]
+
+		subquestion_codes = self.subquestion_codes(question_code)
+		if len(subquestion_codes)>0:
+			return {self.map_question_code_to_label[code]: voter_closed_answers[code] for code in subquestion_codes}
+
+		raise ValueError(f"Cannot find answer of voter {voter_id} to question {question_code}")	
+	
+	def get_voter_answer_rank(self, question_code:str, voter_index:int=0, voter_id:int=None):
+		"""
+		get the answer of a single voter to a "ranking" question.
+
+		The voter can be given either by voter_index (starts with 0) or voter_id (unique id in the panel).
+		If both are given, voter_id takes precedence.
+
+		:return a list of the subquestion labels, ordered from the highest ranked to the lowest-ranked.
+		"""
+		voter_id = self.voter_id(voter_index, voter_id)
+		map_question_label_to_rank = self.get_voter_answer(question_code, voter_id=voter_id)
+		return sorted(map_question_label_to_rank.keys(), key=map_question_label_to_rank.__getitem__)
+	
+	def get_voter_answer_approval(self, question_code:str, voter_index:int=0, voter_id:int=None):
+		"""
+		get the answer of a single voter to an "approval" (checkboxes) question.
+
+		The voter can be given either by voter_index (starts with 0) or voter_id (unique id in the panel).
+		If both are given, voter_id takes precedence.
+
+		:return a set of the approved subquestion labels.
+		"""
+		voter_id = self.voter_id(voter_index, voter_id)
+		map_question_label_to_rank = self.get_voter_answer(question_code, voter_id=voter_id)
+		return {label for label,answer in map_question_label_to_rank.items() if answer>0}
+	
+	def get_voter_answers(self, question_code:str):
+		"""
+		:return all voters' answers to the given question.
+		"""
+		return [self.get_voter_answer(question_code, voter_id=id) for id in self.voter_ids]
+	
+	def get_voter_answers_rank(self, question_code:str):
+		"""
+		:return all voters' answers to the given "ranking" question.
+		"""
+		return [self.get_voter_answer_rank(question_code, voter_id=id) for id in self.voter_ids]
+	
+	def get_voter_answers_approval(self, question_code:str):
+		"""
+		:return all voters' answers to the given "approval" question.
+		"""
+		return [self.get_voter_answer_approval(question_code, voter_id=id) for id in self.voter_ids]
+
+
+	def print_answers_of_one_voter(self, voter_index:int=0, voter_id:int=None):
+		"""
+		Pretty-print the answers of one voter (by default the first one), for illustration.
+
+		The voter can be given either by voter_index (starts with 0) or voter_id (unique id in the panel).
+		If both are given, voter_id takes precedence.
+		"""
+		voter_id = self.voter_id(voter_index, voter_id)
 		voter_closed_answers = self.map_voter_id_to_closed_answers[voter_id]
 		voter_open_answers = self.map_voter_id_to_open_answers[voter_id]
 		# print("voter_open_answers: ",voter_open_answers)
 
 		for question_code,question_label in self.map_question_code_to_label.items():
 			print(f"{question_code}: {question_label}")
-			if question_code in voter_open_answers:
+			if question_code in voter_open_answers:             # open (free-text) question
 				first_voter_answer = voter_open_answers[question_code]
 				print(f"\tTEXT: {first_voter_answer}")
-			elif f"{question_code}_1" in voter_open_answers:
+			elif f"{question_code}_1" in voter_open_answers:    # open (free-text) question
 				first_voter_answer = voter_open_answers[f"{question_code}_1"]
 				print(f"\tTEXT: {first_voter_answer}")
-			elif question_code in voter_closed_answers:
-				if question_code in self.map_question_code_to_map_answer_code_to_label:
+			elif question_code in voter_closed_answers:         # closed questions:
+				if question_code in self.map_question_code_to_map_answer_code_to_label:   
 					voter_answer_code = int(voter_closed_answers[question_code])
 					voter_answer_label = self.map_question_code_to_map_answer_code_to_label[question_code][voter_answer_code]
 					print(f"\t{voter_answer_code}: {voter_answer_label}")
-				else:
+				else:                                                                     
 					first_voter_answer = voter_closed_answers[question_code]
 					print(f"\tDATA: {first_voter_answer}")
 			else:
@@ -152,4 +237,4 @@ class PollResults:
 		"""
 		returns the codes of all subquestions of a single multi-answer question.
 		"""
-		return [column for column in self.columns if column.startswith(question_code)]
+		return [q for q in self.map_question_code_to_label if q.startswith(question_code)]

@@ -1,3 +1,8 @@
+"""
+Code for analyzing results of Example Poll #2
+"""
+
+
 import panel4all, logging
 
 panel4all.logger.addHandler(logging.StreamHandler())
@@ -19,5 +24,15 @@ poll_results = panel4all.PollResults(
 # print("\n\n=== Frequency table of Q2 by religion: ===")	
 # poll_results.print_frequencies_by_religion("Q2", religion_question_code="col_10")
 
-print(poll_results.subquestion_codes("Q6"))
-poll_results.print_frequencies("Q6_1")
+print("\n == Q2: single-answer question ==\n")  
+print(poll_results.get_voter_answer("Q2", voter_index=300))
+
+print("\n == Q3: approval question ==\n")  
+print(poll_results.get_voter_answer("Q3", voter_index=300))
+print(poll_results.get_voter_answer_approval("Q3", voter_index=300))
+
+print("\n == Q6: rank question ==\n")   
+print(poll_results.get_voter_answer("Q6", voter_index=300))
+print(poll_results.get_voter_answer_rank("Q6", voter_index=300))
+
+# print(poll_results.get_voter_answers_rank("Q6"))
