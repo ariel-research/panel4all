@@ -1,0 +1,31 @@
+﻿Variable Information,,,,,,,,
+Variable,Position,Label,Measurement Level,Role,Column Width,Alignment,Print Format,Write Format
+id,1,<none>,Scale,Input,12,Right,F10,F10
+ext_id,2,<none>,Nominal,Input,12,Right,F10,F10
+start,3,<none>,Nominal,Input,22,Left,A20,A20
+finish,4,<none>,Nominal,Input,22,Left,A20,A20
+Q2,5,לאיזה מהמתווים הבאים של שחרור אסירים מדינת ישראל צריכה להסכים במסגרת עסקת שבויים?,Nominal,Input,12,Right,F10,F10
+Q3,6,לאיזה מהמתווים הבאים של הפסקת לחימה מדינת ישראל צריכה להסכים במסגרת עסקת שבויים?,Nominal,Input,12,Right,F10,F10
+Q4,7,עד כמה הנושא חשוב לך - עד כמה חשוב לך שמדינת ישראל תפעל בהתאם לדעות שהבעת בשאלות הקודמות?,Nominal,Input,12,Right,F10,F10
+Q5,8,באיזה אופן לדעתך צריכה להתקבל ההחלטה הסופית בנושא עסקת שבויים?,Nominal,Input,12,Right,F10,F10
+Q6,9,כאן ניתן לפרט יותר על התשובות שסימנת:,Nominal,Input,12,Right,F10,F10
+col_1,10,מין,Nominal,Input,12,Right,F10,F10
+col_2,11,קבוצות גיל,Nominal,Input,12,Right,F10,F10
+col_3,12,מחוז,Nominal,Input,12,Right,F10,F10
+col_6,13,city,Scale,Input,12,Right,F10,F10
+col_8,14,מצב משפחתי,Nominal,Input,12,Right,F10,F10
+col_9,15,השכלה,Nominal,Input,12,Right,F10,F10
+col_10,16,דת,Nominal,Input,12,Right,F10,F10
+col_12,17,עיסוק עיקרי,Nominal,Input,12,Right,F10,F10
+col_13,18,ארץ לידה,Nominal,Input,12,Right,F10,F10
+col_14,19,מספר ילדים,Nominal,Input,12,Right,F10,F10
+col_15,20,ארץ לידת אב,Nominal,Input,12,Right,F10,F10
+col_16,21,ארץ לידת אם,Nominal,Input,12,Right,F10,F10
+col_21,22,הכנסה ממוצעת למשפחה,Nominal,Input,12,Right,F10,F10
+col_22,23,הכנסה ממוצעת אישית,Nominal,Input,12,Right,F10,F10
+col_30,24,real age,Scale,Input,12,Right,F10,F10
+col_42,25,זהות דתית - מצומצם,Nominal,Input,12,Right,F10,F10
+col_425,26,תחום העיסוק,Nominal,Input,12,Right,F10,F10
+col_2581,27,אזורי חיוג,Nominal,Input,12,Right,F10,F10
+device_type,28,device type,Nominal,Input,13,Right,F10,F10
+Variables in the working file,,,,,,,,
