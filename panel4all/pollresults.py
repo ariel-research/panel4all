@@ -164,7 +164,7 @@ class PollResults:
 		"""
 		Rename the column titled `question_code` (e.g. "Q2") to `question_label` (a meaningful label for the question).
 		"""
-		map_answer_number_to_label = self.map_answer_code_to_label.query(f"Question=='{question_code}'")[["Value","Label"]].set_index("Value")
+		map_answer_number_to_label = self.variable_information_table.query(f"Question=='{question_code}'")[["Value","Label"]].set_index("Value")
 		self.results_closed_questions = self.results\
 			.join(map_answer_number_to_label, on=question_code)\
 			.rename(columns={question_code: f"{question_label}_code", "Label": f"{question_label}_label"})
