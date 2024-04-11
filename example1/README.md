@@ -1,2 +1,4 @@
-# Example 1
-Results of an opinion poll made in Israel circa 5/2021, aimed to check the potential outcome of switching to approval voting.
+# Example: single-answer questions.
+Results of an opinion poll made in Israel circa 3/2024, to check the public opinion regarding a prisoner swap deal. 
+
+The poll is simple, and contains only single-answer questions.

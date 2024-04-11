@@ -102,8 +102,7 @@ class PollResults:
 
 	def frequency_dict(self, question_code:str, query:str=None, title:str=None)->dict:
 		"""
-		Computes a table of the frequencies of answers to the given question (in percents).
-
+		Computes a table of the frequencies of answers to a single-answer question (in percents).
 		:param question_code: the question code.
 		:param query (optional): a query to filter the results before computation.
 		:return a map from answer code to its frequency.
@@ -120,8 +119,7 @@ class PollResults:
 
 	def print_frequencies(self, question_code:str, query:str=None):
 		"""
-		Print a table of the frequencies of answers to the given question (in percents).
-
+		Print a table of the frequencies of answers to a single-answer question (in percents).
 		:param question_code: the question code.
 		:param query (optional): a query to filter the results before computation.
 		"""
@@ -134,8 +132,8 @@ class PollResults:
 
 	def print_frequencies_by_religion(self, question_code:str, religion_question_code:str="col_10"):
 		"""
-		Print a table of the frequencies of answers to the given question (in percents), grouped by religion.
-
+		Print a table of the frequencies of answers to a single-answer question (in percents), 
+		grouped by religion.
 		:param question_code: the question code.
 		:param query (optional): a query to filter the results before computation.
 		:param religion_question_code: the question code of the "religion" demographic question.
@@ -143,7 +141,6 @@ class PollResults:
 		frequency_dict_all   = self.frequency_dict(question_code, title="כללי")
 		frequency_dict_jews  = self.frequency_dict(question_code, query=f"{religion_question_code}==1", title="יהודים")
 		frequency_dict_nonjews  = self.frequency_dict(question_code, query=f"{religion_question_code}!=1", title="לא-יהודים")
-
 		label = self.map_question_code_to_label[question_code]
 		map_answer_code_to_label = self.map_question_code_to_map_answer_code_to_label[question_code]
 		print("\n",label,": ")
@@ -151,70 +148,8 @@ class PollResults:
 			percentsign = "%" if isinstance(frequency_dict_all[answer_code], numbers.Number) else ""
 			print(f"{answer_code},{map_answer_code_to_label.get(answer_code,'')},{frequency_dict_all.get(answer_code,0)}{percentsign},{frequency_dict_jews.get(answer_code,0)}{percentsign},{frequency_dict_nonjews.get(answer_code,0)}{percentsign}")
 
-
-
 	def subquestion_codes(self, question_code:str):
 		"""
 		returns the codes of all subquestions of a single multi-answer question.
 		"""
 		return [column for column in self.columns if column.startswith(question_code)]
-
-
-	def add_label_to_single_answer_question(self, question_code:str, question_label:str):
-		"""
-		Rename the column titled `question_code` (e.g. "Q2") to `question_label` (a meaningful label for the question).
-		"""
-		map_answer_number_to_label = self.variable_information_table.query(f"Question=='{question_code}'")[["Value","Label"]].set_index("Value")
-		self.results_closed_questions = self.results\
-			.join(map_answer_number_to_label, on=question_code)\
-			.rename(columns={question_code: f"{question_label}_code", "Label": f"{question_label}_label"})
-
-	def add_label_to_multi_answer_question(self,  question_code:str, question_label:str, short:bool=False):
-		subquestion_codes = self.subquestion_codes(question_code)
-		def selected_codes(row):
-			return [code for code in subquestion_codes if row[code]==1]
-		def selected_labels(row):
-			map_question_code_to_label = self.map_question_code_to_short_label if short else self.map_question_code_to_label
-			return [map_question_code_to_label[code] for code in subquestion_codes if row[code]==1]
-		self.results_closed_questions[f"{question_label}_codes"] = self.results.apply(selected_codes, axis=1)
-		self.results_closed_questions[f"{question_label}_labels"] = self.results.apply(selected_labels, axis=1)
-		self.results.rename({code: code.replace(question_code, question_label) for code in subquestion_codes}, inplace=True)
-
-	def add_label_to_rank_question(self, question_code:str, question_label:str):
-		subquestion_codes = self.subquestion_codes(question_code)
-		def ranked_codes(row):
-			return sorted(subquestion_codes, key=lambda code: row[code])
-		def ranked_labels(row):
-			return [self.map_question_code_to_label[code] for code in ranked_codes(row)]
-		self.results_closed_questions[f"{question_label}_codes"] = self.results.apply(ranked_codes, axis=1)
-		self.results_closed_questions[f"{question_label}_labels"] = self.results.apply(ranked_labels, axis=1)
-
-
-
-if __name__ == "__main__":
-	logger.addHandler(logging.StreamHandler())
-	# logger.setLevel(logging.DEBUG)
-
-	example_folder = "../example2"
-	poll_results = PollResults(
-		f"{example_folder}/variable_information.csv", 
-		f"{example_folder}/variable_values.csv", 
-		f"{example_folder}/results_closed_questions.csv", 
-		f"{example_folder}/results_open_questions.csv")
-
-	print("\n\n=== Question and answer codes: ===")	
-	poll_results.print_question_and_answer_labels()
-	print("\n\n=== Example answers of one voter: ===")	
-	poll_results.print_answers_of_one_voter(voter_index=0)
-	print("\n\n=== Frequency table of Q2: ===")	
-	poll_results.print_frequencies("Q2")
-	print("\n\n=== Frequency table of Q2 by religion: ===")	
-	poll_results.print_frequencies_by_religion("Q2", religion_question_code="col_10")
-
-	###  These functions can be used to change column names of questions to more meaningful names.
-	# poll_results.add_label_to_single_answer_question("Q2", "single_party")
-	# poll_results.add_label_to_multi_answer_question("Q3", "multi_parties", short=True)
-	# poll_results.add_label_to_single_answer_question("Q4", "single_candidate")
-	# poll_results.add_label_to_multi_answer_question("Q5", "multi_candidates", short=False)
-	# poll_results.add_label_to_rank_question("Q6", "candidate_rank")
-	# poll_results.add_label_to_single_answer_question("Q7", "best_method")
