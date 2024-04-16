@@ -1,6 +1,6 @@
-# Example Poll 2: multi-answer and rank questions.
-Results of an opinion poll made in Israel circa 5/2021, aimed to check the potential outcome of switching to approval voting.
+# Example Poll 1: Single-answer questions.
+Results of an opinion poll made in Israel circa 3/2024, to check the public opinion regarding a prisoner swap deal. 
 
-The poll is more complex, and contains single-answer questions, multi-answer questions and rank questions.
+The poll is simple, and contains only single-answer questions.
 
 See [analyze.py](analyze.py) for usage example.
