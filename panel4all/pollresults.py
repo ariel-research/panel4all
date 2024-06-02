@@ -268,5 +268,3 @@ class PollResults:
 		for answer_code in frequency_dict_all.keys():
 			percentsign = "%" if isinstance(frequency_dict_all[answer_code], numbers.Number) else ""
 			print(f"{answer_code},{map_answer_code_to_label.get(answer_code,'')},{frequency_dict_all.get(answer_code,0)}{percentsign},{frequency_dict_jews.get(answer_code,0)}{percentsign},{frequency_dict_nonjews.get(answer_code,0)}{percentsign}")
-
-def
