@@ -13,15 +13,15 @@ from collections import defaultdict
 logger = logging.getLogger(__name__)
 
 class PollResults:
-	def initialize_from_filenames(self, variable_information_file:str, variable_values_file:str, results_closed_questions_file:str, results_open_questions_file:str):
+	def initialize_from_filenames(self, variable_information_file:str, variable_values_file:str, results_closed_questions_file:str, results_open_questions_file:str=None):
 		return self.initialize_from_dataframes(
-			variable_information_table=pandas.read_csv(variable_information_file, skiprows=1, skipfooter=1, engine='python'),
-			variable_values_table=pandas.read_csv(variable_values_file, skiprows=1),
+			variable_information_table = pandas.read_csv(variable_information_file, skiprows=1, skipfooter=1, engine='python'),
+			variable_values_table = pandas.read_csv(variable_values_file, skiprows=1),
 			results_closed_questions = pandas.read_csv(results_closed_questions_file),
-			results_open_questions = pandas.read_csv(results_open_questions_file).rename(columns=lambda x: re.sub(':? ?','',x)),
+			results_open_questions = pandas.read_csv(results_open_questions_file).rename(columns=lambda x: re.sub(':? ?','',x)) if results_open_questions_file else None,
 		)
 
-	def initialize_from_dataframes(self, variable_information_table:pandas.DataFrame, variable_values_table:pandas.DataFrame, results_closed_questions:pandas.DataFrame, results_open_questions:pandas.DataFrame):
+	def initialize_from_dataframes(self, variable_information_table:pandas.DataFrame, variable_values_table:pandas.DataFrame, results_closed_questions:pandas.DataFrame, results_open_questions:pandas.DataFrame=None):
 		### 1. Variable information table --- map question code to label.
 		self.variable_information_table = variable_information_table
 		logger.debug("variable_information_table:\n%s", self.variable_information_table)
@@ -53,10 +53,13 @@ class PollResults:
 		self.voter_ids = list(self.map_voter_id_to_closed_answers.keys())
 
 		### 4. Results to open questions
-		self.results_open_questions = results_open_questions
-		self.map_voter_id_to_open_answers = {int(row["user_ID"]): row for _, row in self.results_open_questions.iterrows()}
-		logger.debug("map_voter_id_to_open_answers:\n%s",self.map_voter_id_to_open_answers)
-		# self.map_question_code_to_short_label = {code: label.split()[0] for code,label in self.map_question_code_to_label.items() if isinstance(label,str)}
+		if results_open_questions is not None:
+			self.results_open_questions = results_open_questions
+			self.map_voter_id_to_open_answers = {int(row["user_ID"]): row for _, row in self.results_open_questions.iterrows()}
+			logger.debug("map_voter_id_to_open_answers:\n%s",self.map_voter_id_to_open_answers)
+		else:
+			self.results_open_questions =  self.map_voter_id_to_open_answers = None
+			logger.debug("No open questions file")
 
 		return self
 
@@ -265,3 +268,5 @@ class PollResults:
 		for answer_code in frequency_dict_all.keys():
 			percentsign = "%" if isinstance(frequency_dict_all[answer_code], numbers.Number) else ""
 			print(f"{answer_code},{map_answer_code_to_label.get(answer_code,'')},{frequency_dict_all.get(answer_code,0)}{percentsign},{frequency_dict_jews.get(answer_code,0)}{percentsign},{frequency_dict_nonjews.get(answer_code,0)}{percentsign}")
+
+def
